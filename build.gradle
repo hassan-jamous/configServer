@@ -4,40 +4,37 @@ buildscript {
     }
     dependencies {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:2.0.0.RELEASE"
-        classpath 'se.transmode.gradle:gradle-docker:1.2'
     }
 }
 
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
-apply plugin: 'docker'
 apply plugin: 'io.spring.dependency-management'
 
-
-repositories {
-    mavenCentral()
-}
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web")
-    testCompile("org.springframework.boot:spring-boot-starter-test")
+repositories {
+    maven {
+        url 'https://repo.spring.io/libs-milestone'
+    }
+    mavenCentral()
 }
 
-task buildDocker(type: Docker, dependsOn: build) {
-    push = false
-    applicationName = jar.baseName
-    dockerfile = file('Dockerfile')
-    doFirst {
-        copy {
-            from "${project.buildDir}/libs"
-            into stageDir
-        }
+dependencies {
+    compile('org.springframework.cloud:spring-cloud-config-server')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:Finchley.M8"
     }
 }
 
 task wrapper(type: Wrapper) {
     gradleVersion = '4.6'
 }
+
+
